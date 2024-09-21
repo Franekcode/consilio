@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Send, X, ShoppingBag, ChevronRight, Star, ShoppingCart, Package } from 'lucide-react';
+import { Send, X, ShoppingBag, ChevronRight, Star, ShoppingCart, Package, Check } from 'lucide-react';
 
-const ShoppingAssistantWithBundles = ({ onClose }) => {
+const ShoppingAssistantWithConsistentColors = ({ onClose }) => {
   const [query, setQuery] = useState('');
   const [chatHistory, setChatHistory] = useState([
     { type: 'assistant', content: "Hello! I'm your shopping assistant. How can I help you find the perfect product today?" },
@@ -9,31 +9,43 @@ const ShoppingAssistantWithBundles = ({ onClose }) => {
     { type: 'assistant', content: "Based on your need for a durable winter camping tent, I'd recommend the NEMO Chogori 4-Season Mountaineering Tent. It's designed for extreme conditions and offers excellent protection against snow and wind.", 
       productSuggestion: {
         name: "NEMO Chogori 4-Season Mountaineering Tent",
-        image: "/api/placeholder/200/150",
+        image: "/images/namiot.png",
         rating: 4.7,
-        reviewCount: 128
+        reviewCount: 128,
+        keyPoints: [
+          "4-season protection",
+          "Durable materials",
+          "Excellent wind resistance",
+          "Spacious interior"
+        ]
       }
     },
-    { type: 'user', content: 'That looks great! What else do I need for winter camping?' },
-    { type: 'assistant', content: "For a complete winter camping setup, I'd recommend our Winter Camping Essentials Bundle. It includes the NEMO Chogori tent along with other crucial items for a comfortable and safe winter camping experience.", 
+    { type: 'user', content: 'That looks great! Do I need a special sleeping bag for winter camping?' },
+    { type: 'assistant', content: "Excellent question! For winter camping, you definitely need a sleeping bag rated for low temperatures. I'd recommend pairing the NEMO Chogori tent with our Arctic-Grade Sleeping Bag. Together, they form an ideal winter camping combo.", 
       bundleSuggestion: {
-        name: "Winter Camping Essentials Bundle",
+        name: "Winter Camping Duo",
         items: [
-          { name: "NEMO Chogori 4-Season Tent", image: "/api/placeholder/100/100" },
-          { name: "Arctic-Grade Sleeping Bag", image: "/api/placeholder/100/100" },
-          { name: "Insulated Sleeping Pad", image: "/api/placeholder/100/100" },
-          { name: "Winter Camping Stove", image: "/api/placeholder/100/100" }
+          { 
+            name: "NEMO Chogori Tent", 
+            image: "/images/namiot.png",
+            keyPoints: ["4-season protection", "Durable materials"]
+          },
+          { 
+            name: "Arctic-Grade Sleeping Bag", 
+            image: "/images/spiwor.png",
+            keyPoints: ["-20°F temperature rating", "Water-resistant down"]
+          }
         ],
-        savings: "15%",
-        totalPrice: "$1,299.99"
+        savings: "10%",
+        totalPrice: "$899.99"
       }
     },
-    { type: 'user', content: 'Can you tell me more about the sleeping bag in the bundle?' },
-    { type: 'assistant', content: "Certainly! The Arctic-Grade Sleeping Bag included in the bundle is rated for temperatures as low as -20°F (-29°C). It features a draft collar, a full-length zipper draft tube, and is filled with high-quality, water-resistant down insulation. This sleeping bag is designed to keep you warm and comfortable in extreme winter conditions.", 
+    { type: 'user', content: 'Can you tell me more about the sleeping bag?' },
+    { type: 'assistant', content: "Certainly! The Arctic-Grade Sleeping Bag is rated for temperatures as low as -20°F (-29°C). It features a draft collar, a full-length zipper draft tube, and is filled with high-quality, water-resistant down insulation. This sleeping bag is designed to keep you warm and comfortable in extreme winter conditions, making it a perfect match for the NEMO Chogori tent.", 
       continuers: [
-        "Would you like to know about the other items in the bundle?",
-        "How does this compare to other sleeping bags?",
-        "What's the weight of this sleeping bag?"
+        "I am side sleeper. Will it be comfortable?",
+        "How does this sleeping bag compare to others?",
+        "Isnt it overkill for winter camping?"
       ]
     },
   ]);
@@ -65,7 +77,7 @@ const ShoppingAssistantWithBundles = ({ onClose }) => {
   return (
     <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white rounded-lg shadow-xl flex flex-col overflow-hidden font-sans">
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center">
+      <div className="bg-indigo-600 p-4 flex justify-between items-center">
         <div className="flex items-center">
           <ShoppingBag className="text-white mr-2" size={24} />
           <h2 className="text-white font-bold text-xl">Shopping Assistant</h2>
@@ -92,7 +104,7 @@ const ShoppingAssistantWithBundles = ({ onClose }) => {
               </div>
             </div>
             {message.productSuggestion && (
-              <div className="mt-2 bg-white p-3 rounded-md shadow-sm border border-indigo-100">
+              <div className="mt-2 bg-indigo-50 p-3 rounded-md shadow-sm border border-indigo-100">
                 <div className="flex items-center">
                   <img 
                     src={message.productSuggestion.image} 
@@ -112,6 +124,14 @@ const ShoppingAssistantWithBundles = ({ onClose }) => {
                     </div>
                   </div>
                 </div>
+                <ul className="mt-2 space-y-1">
+                  {message.productSuggestion.keyPoints.map((point, idx) => (
+                    <li key={idx} className="flex items-center text-sm text-gray-700">
+                      <Check size={14} className="text-indigo-500 mr-2" />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
                 <button className="mt-3 w-full bg-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-indigo-700 transition flex items-center justify-center">
                   <ShoppingCart size={16} className="mr-2" />
                   Add to Cart
@@ -119,18 +139,26 @@ const ShoppingAssistantWithBundles = ({ onClose }) => {
               </div>
             )}
             {message.bundleSuggestion && (
-              <div className="mt-2 bg-white p-3 rounded-md shadow-sm border border-indigo-100">
+              <div className="mt-2 bg-indigo-50 p-3 rounded-md shadow-sm border border-indigo-100">
                 <h4 className="font-semibold text-indigo-800 mb-2">{message.bundleSuggestion.name}</h4>
-                <div className="grid grid-cols-2 gap-2 mb-3">
+                <div className="flex justify-between mb-3">
                   {message.bundleSuggestion.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center bg-gray-50 p-2 rounded">
-                      <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded mr-2" />
-                      <span className="text-xs">{item.name}</span>
+                    <div key={idx} className="flex flex-col items-center w-1/2">
+                      <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-md mb-2" />
+                      <span className="text-xs text-center font-medium mb-1">{item.name}</span>
+                      <ul className="text-xs space-y-1">
+                        {item.keyPoints.map((point, pointIdx) => (
+                          <li key={pointIdx} className="flex items-center">
+                            <Check size={10} className="text-indigo-500 mr-1 flex-shrink-0" />
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   ))}
                 </div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-green-600">Save {message.bundleSuggestion.savings}</span>
+                  <span className="text-sm font-medium text-indigo-600">Save {message.bundleSuggestion.savings}</span>
                   <span className="text-sm font-bold">{message.bundleSuggestion.totalPrice}</span>
                 </div>
                 <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-indigo-700 transition flex items-center justify-center">
@@ -159,7 +187,7 @@ const ShoppingAssistantWithBundles = ({ onClose }) => {
 
       {/* Input Area */}
       <form onSubmit={handleSubmit} className="p-4 bg-white border-t border-gray-200">
-        <div className="flex items-center bg-gray-100 rounded-full overflow-hidden shadow-inner">
+        <div className="flex items-center bg-indigo-50 rounded-full overflow-hidden shadow-inner">
           <input
             type="text"
             placeholder="Ask about products, features, or comparisons..."
@@ -176,4 +204,4 @@ const ShoppingAssistantWithBundles = ({ onClose }) => {
   );
 };
 
-export default ShoppingAssistantWithBundles;
+export default ShoppingAssistantWithConsistentColors;
