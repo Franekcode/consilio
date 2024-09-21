@@ -1,116 +1,179 @@
 import React, { useState } from 'react';
-import { X, Mic, Send, Star, ArrowLeft, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Send, X, ShoppingBag, ChevronRight, Star, ShoppingCart, Package } from 'lucide-react';
 
-const PostQueryProductInterface = ({ product, onBackToSearch, initialQuery }) => {
-  const [userInput, setUserInput] = useState('');
+const ShoppingAssistantWithBundles = ({ onClose }) => {
+  const [query, setQuery] = useState('');
+  const [chatHistory, setChatHistory] = useState([
+    { type: 'assistant', content: "Hello! I'm your shopping assistant. How can I help you find the perfect product today?" },
+    { type: 'user', content: 'I need a durable tent for winter camping' },
+    { type: 'assistant', content: "Based on your need for a durable winter camping tent, I'd recommend the NEMO Chogori 4-Season Mountaineering Tent. It's designed for extreme conditions and offers excellent protection against snow and wind.", 
+      productSuggestion: {
+        name: "NEMO Chogori 4-Season Mountaineering Tent",
+        image: "/api/placeholder/200/150",
+        rating: 4.7,
+        reviewCount: 128
+      }
+    },
+    { type: 'user', content: 'That looks great! What else do I need for winter camping?' },
+    { type: 'assistant', content: "For a complete winter camping setup, I'd recommend our Winter Camping Essentials Bundle. It includes the NEMO Chogori tent along with other crucial items for a comfortable and safe winter camping experience.", 
+      bundleSuggestion: {
+        name: "Winter Camping Essentials Bundle",
+        items: [
+          { name: "NEMO Chogori 4-Season Tent", image: "/api/placeholder/100/100" },
+          { name: "Arctic-Grade Sleeping Bag", image: "/api/placeholder/100/100" },
+          { name: "Insulated Sleeping Pad", image: "/api/placeholder/100/100" },
+          { name: "Winter Camping Stove", image: "/api/placeholder/100/100" }
+        ],
+        savings: "15%",
+        totalPrice: "$1,299.99"
+      }
+    },
+    { type: 'user', content: 'Can you tell me more about the sleeping bag in the bundle?' },
+    { type: 'assistant', content: "Certainly! The Arctic-Grade Sleeping Bag included in the bundle is rated for temperatures as low as -20°F (-29°C). It features a draft collar, a full-length zipper draft tube, and is filled with high-quality, water-resistant down insulation. This sleeping bag is designed to keep you warm and comfortable in extreme winter conditions.", 
+      continuers: [
+        "Would you like to know about the other items in the bundle?",
+        "How does this compare to other sleeping bags?",
+        "What's the weight of this sleeping bag?"
+      ]
+    },
+  ]);
 
-  if (!product) {
-    return <div>Loading...</div>; // or some loading state
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (query.trim()) {
+      setChatHistory([...chatHistory, { type: 'user', content: query }]);
+      setQuery('');
+      // Here you would typically call an API to get the assistant's response
+    }
+  };
+
+  const handleContinuerClick = (continuer) => {
+    setChatHistory([...chatHistory, { type: 'user', content: continuer }]);
+    // Here you would typically call an API to get the assistant's response
+  };
+
+  const renderStars = (rating) => {
+    return Array(5).fill(0).map((_, i) => (
+      <Star
+        key={i}
+        size={16}
+        className={`${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+      />
+    ));
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg w-full max-w-6xl h-[80vh] flex flex-col">
+    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white rounded-lg shadow-xl flex flex-col overflow-hidden font-sans">
       {/* Header */}
-      <div className="flex justify-between items-center p-6 border-b">
-        <button className="flex items-center text-blue-600 hover:text-blue-800" onClick={onBackToSearch}>
-          <ArrowLeft size={20} className="mr-2" />
-          Back to search
-        </button>
-        <h2 className="text-2xl font-bold">Your Outdoor Adventure Assistant</h2>
-        <button className="text-gray-500 hover:text-gray-700">
-          <X size={28} />
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center">
+        <div className="flex items-center">
+          <ShoppingBag className="text-white mr-2" size={24} />
+          <h2 className="text-white font-bold text-xl">Shopping Assistant</h2>
+        </div>
+        <button onClick={onClose} className="text-white hover:text-gray-200 transition">
+          <X size={24} />
         </button>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-grow flex flex-col p-8 bg-gradient-to-r from-blue-50 to-green-50 overflow-y-auto">
-        {/* Product Information */}
-        <div className="flex mb-8">
-          <img src={product.image} alt={product.name} className="w-1/3 rounded-lg shadow-md" />
-          <div className="ml-8 flex flex-col justify-between">
-            <div>
-              <h3 className="text-3xl font-semibold mb-2">{product.name}</h3>
-              {product.rating && product.reviewCount && (
-                <div className="flex items-center mb-2">
-                  <Star className="text-yellow-400 mr-1" size={20} />
-                  <span className="font-bold mr-2">{product.rating}</span>
-                  <span className="text-gray-600">({product.reviewCount} reviews)</span>
+      {/* Chat Area */}
+      <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50">
+        {chatHistory.map((message, index) => (
+          <div key={index} className="space-y-2">
+            <div className={`text-sm ${message.type === 'user' ? 'text-indigo-600 font-semibold' : 'text-gray-500'}`}>
+              {message.type === 'user' ? 'You' : 'Assistant'}
+            </div>
+            <div className={`${
+              message.type === 'user' 
+                ? 'bg-indigo-50 border-l-4 border-indigo-300 pl-3 py-2 rounded-r-md' 
+                : ''
+            }`}>
+              <div className={`text-gray-800 leading-relaxed ${message.type === 'user' ? 'font-medium' : 'font-normal'}`}>
+                {message.content}
+              </div>
+            </div>
+            {message.productSuggestion && (
+              <div className="mt-2 bg-white p-3 rounded-md shadow-sm border border-indigo-100">
+                <div className="flex items-center">
+                  <img 
+                    src={message.productSuggestion.image} 
+                    alt={message.productSuggestion.name}
+                    className="w-20 h-20 object-cover rounded-md mr-3 cursor-pointer"
+                    onClick={() => {/* Handle click to view product details */}}
+                  />
+                  <div className="flex-grow">
+                    <h4 className="font-semibold text-indigo-800 cursor-pointer hover:underline" onClick={() => {/* Handle click to view product details */}}>
+                      {message.productSuggestion.name}
+                    </h4>
+                    <div className="flex items-center mt-1">
+                      {renderStars(message.productSuggestion.rating)}
+                      <span className="text-sm text-gray-600 ml-1">
+                        ({message.productSuggestion.rating}) {message.productSuggestion.reviewCount} reviews
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              )}
-              {product.price && <p className="text-2xl font-bold text-green-600 mb-4">{product.price}</p>}
-            </div>
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition duration-300 text-lg font-semibold w-max">
-              Add to Cart
-            </button>
+                <button className="mt-3 w-full bg-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-indigo-700 transition flex items-center justify-center">
+                  <ShoppingCart size={16} className="mr-2" />
+                  Add to Cart
+                </button>
+              </div>
+            )}
+            {message.bundleSuggestion && (
+              <div className="mt-2 bg-white p-3 rounded-md shadow-sm border border-indigo-100">
+                <h4 className="font-semibold text-indigo-800 mb-2">{message.bundleSuggestion.name}</h4>
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  {message.bundleSuggestion.items.map((item, idx) => (
+                    <div key={idx} className="flex items-center bg-gray-50 p-2 rounded">
+                      <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded mr-2" />
+                      <span className="text-xs">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-green-600">Save {message.bundleSuggestion.savings}</span>
+                  <span className="text-sm font-bold">{message.bundleSuggestion.totalPrice}</span>
+                </div>
+                <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-indigo-700 transition flex items-center justify-center">
+                  <Package size={16} className="mr-2" />
+                  Add Bundle to Cart
+                </button>
+              </div>
+            )}
+            {index === chatHistory.length - 1 && message.type === 'assistant' && message.continuers && (
+              <div className="mt-2 space-y-2">
+                {message.continuers.map((continuer, idx) => (
+                  <button 
+                    key={idx}
+                    onClick={() => handleContinuerClick(continuer)}
+                    className="flex items-center text-sm text-indigo-600 hover:text-indigo-800 transition"
+                  >
+                    <ChevronRight size={16} className="mr-1" />
+                    {continuer}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-
-        {/* Assistant's Response */}
-        <div className="bg-white rounded-lg p-6 mb-8 shadow-md">
-          <h4 className="text-xl font-semibold mb-4">Response to: {initialQuery}</h4>
-          <p>
-            The TrekPro Ultralight Tent is an excellent choice for backpacking. At just 2.5 lbs, it's one of the lightest in its category, perfect for long treks. It sets up quickly in under 5 minutes, ideal for efficient camp setup.
-          </p>
-          {/* ... (rest of the response) */}
-        </div>
-
-        {/* Interactive Query Area */}
-        <div className="w-full mb-8">
-          <h4 className="text-xl font-semibold mb-4">Have a follow-up question?</h4>
-          <div className="flex items-center bg-white rounded-full p-4 shadow-md">
-            <textarea
-              placeholder="Ask anything else about this product..."
-              className="flex-grow outline-none resize-none text-lg bg-transparent"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              rows={2}
-            />
-            <Mic size={24} className="text-blue-500 ml-4 cursor-pointer hover:text-blue-600" />
-            <Send size={24} className="text-green-500 ml-4 cursor-pointer hover:text-green-600" />
-          </div>
-        </div>
-
-        {/* Additional Features */}
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <h4 className="text-xl font-semibold mb-4">Key Features</h4>
-            <ul className="list-disc pl-5">
-              {product.features && product.features.map((feature, index) => (
-                <li key={index} className="mb-2">{feature}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xl font-semibold mb-4">Actions</h4>
-            <div className="space-y-2">
-              <button className="w-full bg-gray-200 text-gray-800 px-4 py-3 rounded-full hover:bg-gray-300 transition duration-300">
-                Compare with Similar Products
-              </button>
-              <button className="w-full bg-gray-200 text-gray-800 px-4 py-3 rounded-full hover:bg-gray-300 transition duration-300">
-                View Customer Reviews
-              </button>
-              <button className="w-full bg-gray-200 text-gray-800 px-4 py-3 rounded-full hover:bg-gray-300 transition duration-300">
-                See Technical Specs
-              </button>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Feedback Section */}
-      <div className="p-6 bg-gray-100 flex justify-between items-center">
-        <span className="text-lg font-semibold">Was this information helpful?</span>
-        <div className="flex space-x-4">
-          <button className="flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full hover:bg-green-200 transition duration-300">
-            <ThumbsUp size={20} className="mr-2" /> Yes
-          </button>
-          <button className="flex items-center bg-red-100 text-red-800 px-4 py-2 rounded-full hover:bg-red-200 transition duration-300">
-            <ThumbsDown size={20} className="mr-2" /> No
+      {/* Input Area */}
+      <form onSubmit={handleSubmit} className="p-4 bg-white border-t border-gray-200">
+        <div className="flex items-center bg-gray-100 rounded-full overflow-hidden shadow-inner">
+          <input
+            type="text"
+            placeholder="Ask about products, features, or comparisons..."
+            className="flex-grow px-5 py-3 bg-transparent outline-none text-gray-800"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button type="submit" className="p-3 text-indigo-600 hover:text-indigo-800 transition">
+            <Send size={20} />
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
 
-export default PostQueryProductInterface;
+export default ShoppingAssistantWithBundles;
