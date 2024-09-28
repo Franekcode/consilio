@@ -1,3 +1,5 @@
+//Using the interface developed earlier
+
 import React, { useState } from 'react';
 import WidgetInterface from './WidgetInterface';
 import PostQueryProductInterface from './PostQueryProductInterface';

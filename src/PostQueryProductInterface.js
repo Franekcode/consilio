@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
-import { Send, X, ShoppingBag, ChevronRight, Star, ShoppingCart, Package, Check } from 'lucide-react';
+//Using the interface developed earlier
 
-const ShoppingAssistantWithConsistentColors = ({ onClose }) => {
+
+import React, { useState, useEffect } from 'react';
+import { Send, X, ShoppingBag, ChevronRight, Star, ShoppingCart, Check } from 'lucide-react';
+
+const ShoppingAssistant = ({ onClose, initialQuery }) => {
   const [query, setQuery] = useState('');
-  const [chatHistory, setChatHistory] = useState([
-    { type: 'assistant', content: "Hello! I'm your shopping assistant. How can I help you find the perfect product today?" },
-    { type: 'user', content: 'I need a durable tent for winter camping' },
+  const [isLoading, setIsLoading] = useState(false);
+  const [displayedMessages, setDisplayedMessages] = useState([]);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+  const fullConversation = [
+    { type: 'user', content: initialQuery },
     { type: 'assistant', content: "Based on your need for a durable winter camping tent, I'd recommend the NEMO Chogori 4-Season Mountaineering Tent. It's designed for extreme conditions and offers excellent protection against snow and wind.", 
       productSuggestion: {
         name: "NEMO Chogori 4-Season Mountaineering Tent",
@@ -20,48 +26,44 @@ const ShoppingAssistantWithConsistentColors = ({ onClose }) => {
         ]
       }
     },
-    { type: 'user', content: 'That looks great! Do I need a special sleeping bag for winter camping?' },
-    { type: 'assistant', content: "Excellent question! For winter camping, you definitely need a sleeping bag rated for low temperatures. I'd recommend pairing the NEMO Chogori tent with our Arctic-Grade Sleeping Bag. Together, they form an ideal winter camping combo.", 
-      bundleSuggestion: {
-        name: "Winter Camping Duo",
-        items: [
-          { 
-            name: "NEMO Chogori Tent", 
-            image: "/images/namiot.png",
-            keyPoints: ["4-season protection", "Durable materials"]
-          },
-          { 
-            name: "Arctic-Grade Sleeping Bag", 
-            image: "/images/spiwor.png",
-            keyPoints: ["-20°F temperature rating", "Water-resistant down"]
-          }
-        ],
-        savings: "10%",
-        totalPrice: "$899.99"
-      }
-    },
-    { type: 'user', content: 'Can you tell me more about the sleeping bag?' },
-    { type: 'assistant', content: "Certainly! The Arctic-Grade Sleeping Bag is rated for temperatures as low as -20°F (-29°C). It features a draft collar, a full-length zipper draft tube, and is filled with high-quality, water-resistant down insulation. This sleeping bag is designed to keep you warm and comfortable in extreme winter conditions, making it a perfect match for the NEMO Chogori tent.", 
+    { type: 'assistant', content: "Would you like to know more about any specific features of this tent?", 
       continuers: [
-        "I am side sleeper. Will it be comfortable?",
-        "How does this sleeping bag compare to others?",
-        "Isnt it overkill for winter camping?"
+        "Tell me about its wind resistance",
+        "How much does it weigh?",
+        "What's the tent's capacity?"
       ]
     },
-  ]);
+  ];
+
+  useEffect(() => {
+    if (currentMessageIndex < fullConversation.length) {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        setDisplayedMessages(prev => [...prev, fullConversation[currentMessageIndex]]);
+        setCurrentMessageIndex(prev => prev + 1);
+        setIsLoading(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [currentMessageIndex, fullConversation]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      setChatHistory([...chatHistory, { type: 'user', content: query }]);
+      setDisplayedMessages(prev => [...prev, { type: 'user', content: query }]);
       setQuery('');
       // Here you would typically call an API to get the assistant's response
+      // For now, we'll just add a loading state
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        // Add a mock response
+        setDisplayedMessages(prev => [...prev, { 
+          type: 'assistant', 
+          content: "That's a great question about the NEMO Chogori tent. What specific aspect would you like to know more about?"
+        }]);
+      }, 1500);
     }
-  };
-
-  const handleContinuerClick = (continuer) => {
-    setChatHistory([...chatHistory, { type: 'user', content: continuer }]);
-    // Here you would typically call an API to get the assistant's response
   };
 
   const renderStars = (rating) => {
@@ -89,7 +91,7 @@ const ShoppingAssistantWithConsistentColors = ({ onClose }) => {
 
       {/* Chat Area */}
       <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50">
-        {chatHistory.map((message, index) => (
+        {displayedMessages.map((message, index) => (
           <div key={index} className="space-y-2">
             <div className={`text-sm ${message.type === 'user' ? 'text-indigo-600 font-semibold' : 'text-gray-500'}`}>
               {message.type === 'user' ? 'You' : 'Assistant'}
@@ -138,41 +140,12 @@ const ShoppingAssistantWithConsistentColors = ({ onClose }) => {
                 </button>
               </div>
             )}
-            {message.bundleSuggestion && (
-              <div className="mt-2 bg-indigo-50 p-3 rounded-md shadow-sm border border-indigo-100">
-                <h4 className="font-semibold text-indigo-800 mb-2">{message.bundleSuggestion.name}</h4>
-                <div className="flex justify-between mb-3">
-                  {message.bundleSuggestion.items.map((item, idx) => (
-                    <div key={idx} className="flex flex-col items-center w-1/2">
-                      <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-md mb-2" />
-                      <span className="text-xs text-center font-medium mb-1">{item.name}</span>
-                      <ul className="text-xs space-y-1">
-                        {item.keyPoints.map((point, pointIdx) => (
-                          <li key={pointIdx} className="flex items-center">
-                            <Check size={10} className="text-indigo-500 mr-1 flex-shrink-0" />
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-indigo-600">Save {message.bundleSuggestion.savings}</span>
-                  <span className="text-sm font-bold">{message.bundleSuggestion.totalPrice}</span>
-                </div>
-                <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-indigo-700 transition flex items-center justify-center">
-                  <Package size={16} className="mr-2" />
-                  Add Bundle to Cart
-                </button>
-              </div>
-            )}
-            {index === chatHistory.length - 1 && message.type === 'assistant' && message.continuers && (
+            {message.continuers && (
               <div className="mt-2 space-y-2">
                 {message.continuers.map((continuer, idx) => (
                   <button 
                     key={idx}
-                    onClick={() => handleContinuerClick(continuer)}
+                    onClick={() => setQuery(continuer)}
                     className="flex items-center text-sm text-indigo-600 hover:text-indigo-800 transition"
                   >
                     <ChevronRight size={16} className="mr-1" />
@@ -183,6 +156,13 @@ const ShoppingAssistantWithConsistentColors = ({ onClose }) => {
             )}
           </div>
         ))}
+        {isLoading && (
+          <div className="flex justify-center items-center space-x-2">
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce200"></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce400"></div>
+          </div>
+        )}
       </div>
 
       {/* Input Area */}
@@ -204,4 +184,4 @@ const ShoppingAssistantWithConsistentColors = ({ onClose }) => {
   );
 };
 
-export default ShoppingAssistantWithConsistentColors;
+export default ShoppingAssistant;

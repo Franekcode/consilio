@@ -1,68 +1,94 @@
-import React, { useState } from 'react';
-import { Search, Mic, ArrowRight } from 'lucide-react';
+//Using the interface developed earlier
+
+import React, { useState, useEffect } from 'react';
+import { Send, X, ShoppingBag, ChevronRight } from 'lucide-react';
 
 const WidgetInterface = ({ onSearch }) => {
   const [query, setQuery] = useState('');
+  const [placeholder, setPlaceholder] = useState('');
+  const placeholders = [
+    "What kind of adventure are you planning?",
+    "Tell me about your ideal camping trip",
+    "What's your biggest outdoor challenge?",
+    "Dreaming of new gear? Let's chat!",
+    "What's your next outdoor goal?"
+  ];
 
-  const handleSearch = () => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholder(placeholders[Math.floor(Math.random() * placeholders.length)]);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (query.trim()) {
       onSearch(query);
     }
   };
 
-  const conversationStarters = [
-    "What's the best laptop for a college student?",
-    "I need comfortable running shoes for daily use",
-    "Recommend a good book for learning photography",
-    "What's a great gift for a coffee enthusiast?"
+  const suggestionTopics = [
+    "What should I pack for a weekend camping trip?",
+    "How do I choose the right hiking boots?",
+    "What's the best way to purify water while backpacking?",
+    "Can you recommend gear for winter camping?"
   ];
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg w-80 h-[500px] flex flex-col overflow-hidden">
+    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white rounded-lg shadow-xl flex flex-col overflow-hidden font-sans">
       {/* Header */}
-      <div className="p-4 bg-gradient-to-r from-blue-500 to-blue-600">
-        <h2 className="text-lg font-bold text-white">Shopping Assistant</h2>
+      <div className="bg-indigo-600 p-4 flex justify-between items-center">
+        <div className="flex items-center">
+          <ShoppingBag className="text-white mr-2" size={24} />
+          <h2 className="text-white font-bold text-xl">Shopping Assistant</h2>
+        </div>
+        <button className="text-white hover:text-gray-200 transition">
+          <X size={24} />
+        </button>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-grow overflow-y-auto p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Try asking about:</h3>
-        <ul className="space-y-3">
-          {conversationStarters.map((starter, index) => (
-            <li 
-              key={index}
-              className="flex items-center justify-between bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition duration-300"
-              onClick={() => setQuery(starter)}
-            >
-              <span className="text-sm text-gray-800">{starter}</span>
-              <ArrowRight size={16} className="text-blue-500" />
-            </li>
-          ))}
-        </ul>
+      <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50">
+        <h1 className="text-2xl font-bold text-center text-indigo-800 mb-4">
+          How can I assist with your outdoor adventure today?
+        </h1>
+
+        {/* Suggestion Topics */}
+        <div className="w-full mb-4">
+          <h3 className="text-lg font-semibold mb-2 text-indigo-700">Popular Questions</h3>
+          <div className="space-y-2">
+            {suggestionTopics.map((topic, index) => (
+              <button 
+                key={index}
+                className="w-full text-left text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition px-4 py-2 rounded-lg"
+                onClick={() => setQuery(topic)}
+              >
+                <div className="flex items-center">
+                  <ChevronRight size={16} className="mr-2 text-indigo-400" />
+                  <span>{topic}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Bottom Query Input */}
-      <div className="p-4 border-t bg-gray-50">
-        <div className="flex items-center bg-white rounded-full border border-gray-300 overflow-hidden">
+      {/* Input Area */}
+      <form onSubmit={handleSubmit} className="p-4 bg-white border-t border-gray-200">
+        <div className="flex items-center bg-indigo-50 rounded-full overflow-hidden shadow-inner">
           <input
             type="text"
-            placeholder="Ask me anything..."
-            className="flex-grow bg-transparent outline-none text-sm px-4 py-2"
+            placeholder={placeholder}
+            className="flex-grow px-5 py-3 bg-transparent outline-none text-gray-800"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <Mic className="text-blue-500 cursor-pointer mx-2" size={18} />
-          <button 
-            className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition duration-300"
-            onClick={handleSearch}
-          >
-            <Search size={18} />
+          <button type="submit" className="p-3 text-indigo-600 hover:text-indigo-800 transition">
+            <Send size={20} />
           </button>
         </div>
-        <p className="text-xs text-gray-500 text-center mt-2">
-          I can help you find products, compare options, and answer questions about our inventory.
-        </p>
-      </div>
+      </form>
     </div>
   );
 };
