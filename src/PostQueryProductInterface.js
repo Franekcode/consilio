@@ -1,6 +1,3 @@
-//Using the interface developed earlier
-
-
 import React, { useState, useEffect } from 'react';
 import { Send, X, ShoppingBag, ChevronRight, Star, ShoppingCart, Check } from 'lucide-react';
 
@@ -9,24 +6,43 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [displayedMessages, setDisplayedMessages] = useState([]);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
+  const [interestedInSleepingBag, setInterestedInSleepingBag] = useState(false);
+  const [askedAboutTent, setAskedAboutTent] = useState(false);
+
+  const productCatalog = {
+    tent: {
+      name: "NEMO Chogori 4-Season Mountaineering Tent",
+      image: "/images/namiot.png",
+      rating: 4.7,
+      reviewCount: 128,
+      keyPoints: [
+        "4-season protection",
+        "Durable materials",
+        "Excellent wind resistance",
+        "Spacious interior"
+      ],
+      price: "$749.99"
+    },
+    sleepingBag: {
+      name: "Arctic Expedition -40°F Sleeping Bag",
+      image: "/images/sss.png",
+      rating: 4.9,
+      reviewCount: 95,
+      keyPoints: [
+        "Extreme temperature rating (-40°F)",
+        "Water-resistant outer shell",
+        "Ergonomic hood design",
+        "Lightweight for its warmth"
+      ],
+      price: "$399.99"
+    }
+  };
 
   const fullConversation = [
     { type: 'user', content: initialQuery },
     { type: 'assistant', content: "Based on your need for a durable winter camping tent, I'd recommend the NEMO Chogori 4-Season Mountaineering Tent. It's designed for extreme conditions and offers excellent protection against snow and wind.", 
-      productSuggestion: {
-        name: "NEMO Chogori 4-Season Mountaineering Tent",
-        image: "/images/namiot.png",
-        rating: 4.7,
-        reviewCount: 128,
-        keyPoints: [
-          "4-season protection",
-          "Durable materials",
-          "Excellent wind resistance",
-          "Spacious interior"
-        ]
-      }
-    },
-    { type: 'assistant', content: "Would you like to know more about any specific features of this tent?", 
+      productSuggestion: productCatalog.tent,
       continuers: [
         "Tell me about its wind resistance",
         "How much does it weigh?",
@@ -42,7 +58,8 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
         setDisplayedMessages(prev => [...prev, fullConversation[currentMessageIndex]]);
         setCurrentMessageIndex(prev => prev + 1);
         setIsLoading(false);
-      }, 1000);
+        setMessageCount(prev => prev + 1);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [currentMessageIndex, fullConversation]);
@@ -50,20 +67,83 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      setDisplayedMessages(prev => [...prev, { type: 'user', content: query }]);
-      setQuery('');
-      // Here you would typically call an API to get the assistant's response
-      // For now, we'll just add a loading state
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        // Add a mock response
-        setDisplayedMessages(prev => [...prev, { 
-          type: 'assistant', 
-          content: "That's a great question about the NEMO Chogori tent. What specific aspect would you like to know more about?"
-        }]);
-      }, 1500);
+      processUserMessage(query);
     }
+  };
+
+  const handleContinuerClick = (continuer) => {
+    processUserMessage(continuer);
+  };
+
+  const processUserMessage = (message) => {
+    const userMessage = { type: 'user', content: message };
+    setDisplayedMessages(prev => [...prev, userMessage]);
+    setQuery('');
+    setIsLoading(true);
+    setMessageCount(prev => prev + 1);
+
+    setTimeout(() => {
+      setIsLoading(false);
+      let assistantResponse;
+      
+      if (message.toLowerCase().includes("wind resistance")) {
+        assistantResponse = { 
+          type: 'assistant', 
+          content: "The NEMO Chogori tent excels in wind resistance. Its unique pole structure and guy-out points create a sturdy frame that can withstand high winds typically encountered in mountainous regions. The tent's aerodynamic shape helps deflect wind, reducing the stress on the structure. Many users have reported it standing strong in winds up to 50 mph!"
+        };
+        setAskedAboutTent(true);
+      } else if (message.toLowerCase().includes("weight")) {
+        assistantResponse = { 
+          type: 'assistant', 
+          content: "The NEMO Chogori 4-Season Mountaineering Tent weighs approximately 9 lbs 8 oz (4.3 kg). While it's not the lightest tent available, this weight is quite reasonable for a 4-season tent of this size and durability. The extra weight comes from the robust materials and construction needed to withstand extreme conditions."
+        };
+        setAskedAboutTent(true);
+      } else if (message.toLowerCase().includes("capacity")) {
+        assistantResponse = { 
+          type: 'assistant', 
+          content: "The NEMO Chogori is designed as a 3-person tent. It offers a spacious interior with a peak height of 48 inches (122 cm) and a floor area of 44.3 square feet (4.1 square meters). This provides comfortable accommodation for three people along with their gear, making it ideal for small group expeditions."
+        };
+        setAskedAboutTent(true);
+      } else if (message.toLowerCase().includes("tell me more about sleeping bags") || message.toLowerCase().includes("what do you recommend?")) {
+        setInterestedInSleepingBag(true);
+        assistantResponse = { 
+          type: 'assistant', 
+          content: "Great! I'd be happy to tell you about sleeping bags. For winter camping, I highly recommend the Arctic Expedition -40°F Sleeping Bag. It's designed to keep you warm in extreme cold conditions, making it a perfect companion for your winter camping adventures.",
+          productSuggestion: productCatalog.sleepingBag
+        };
+      } else {
+        assistantResponse = { 
+          type: 'assistant', 
+          content: "The NEMO Chogori 4-Season Mountaineering Tent weighs approximately 9 lbs 8 oz (4.3 kg). While it's not the lightest tent available, this weight is quite reasonable for a 4-season tent of this size and durability. The extra weight comes from the robust materials and construction needed to withstand extreme conditions."
+        };
+      }
+      
+      if (!askedAboutTent && !assistantResponse.continuers) {
+        assistantResponse.continuers = [
+          "How many people can it comfortably fit?",
+          "How much does it weigh?",
+          "Is the tent easy to set up in cold conditions, even with gloves on?"
+        ];
+      }
+      
+      setDisplayedMessages(prev => [...prev, assistantResponse]);
+      setMessageCount(prev => prev + 1);
+
+      if (messageCount >= 1 && askedAboutTent && !interestedInSleepingBag) {
+        setTimeout(() => {
+          setDisplayedMessages(prev => [...prev, {
+            type: 'assistant',
+            content: "Now that we've discussed the tent in more detail, have you considered pairing it with a high-performance sleeping bag? A good sleeping bag is crucial for comfort and safety in cold conditions.",
+            continuers: [
+              "Tell me more about sleeping bags",
+              "What do you recommend?",
+              "No thanks, just interested in the tent"
+            ]
+          }]);
+          setMessageCount(prev => prev + 1);
+        }, 2000);
+      }
+    }, 2500);
   };
 
   const renderStars = (rating) => {
@@ -92,7 +172,7 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
       {/* Chat Area */}
       <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50">
         {displayedMessages.map((message, index) => (
-          <div key={index} className="space-y-2">
+          <div key={index} className="space-y-2 animate-fadeIn">
             <div className={`text-sm ${message.type === 'user' ? 'text-indigo-600 font-semibold' : 'text-gray-500'}`}>
               {message.type === 'user' ? 'You' : 'Assistant'}
             </div>
@@ -124,6 +204,7 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
                         ({message.productSuggestion.rating}) {message.productSuggestion.reviewCount} reviews
                       </span>
                     </div>
+                    <p className="text-indigo-600 font-bold mt-1">{message.productSuggestion.price}</p>
                   </div>
                 </div>
                 <ul className="mt-2 space-y-1">
@@ -145,7 +226,7 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
                 {message.continuers.map((continuer, idx) => (
                   <button 
                     key={idx}
-                    onClick={() => setQuery(continuer)}
+                    onClick={() => handleContinuerClick(continuer)}
                     className="flex items-center text-sm text-indigo-600 hover:text-indigo-800 transition"
                   >
                     <ChevronRight size={16} className="mr-1" />

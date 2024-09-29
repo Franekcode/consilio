@@ -31,7 +31,7 @@ const WidgetInterface = ({ onSearch }) => {
   const suggestionTopics = [
     "What should I pack for a weekend camping trip?",
     "How do I choose the right hiking boots?",
-    "What's the best way to purify water while backpacking?",
+    "I need a realiable tent for winter camping for the first time",
     "Can you recommend gear for winter camping?"
   ];
 
