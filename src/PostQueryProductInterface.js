@@ -9,6 +9,7 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
   const [messageCount, setMessageCount] = useState(0);
   const [interestedInSleepingBag, setInterestedInSleepingBag] = useState(false);
   const [askedAboutTent, setAskedAboutTent] = useState(false);
+  const [lastContinuerIndex, setLastContinuerIndex] = useState(-1);
 
   const productCatalog = {
     tent: {
@@ -22,7 +23,7 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
         "Excellent wind resistance",
         "Spacious interior"
       ],
-      price: "$749.99"
+      price: "$249.99"
     },
     sleepingBag: {
       name: "Arctic Expedition -40°F Sleeping Bag",
@@ -35,7 +36,7 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
         "Ergonomic hood design",
         "Lightweight for its warmth"
       ],
-      price: "$399.99"
+      price: "$99.99"
     }
   };
 
@@ -71,7 +72,8 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
     }
   };
 
-  const handleContinuerClick = (continuer) => {
+  const handleContinuerClick = (continuer, index) => {
+    setLastContinuerIndex(index);
     processUserMessage(continuer);
   };
 
@@ -141,9 +143,9 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
             ]
           }]);
           setMessageCount(prev => prev + 1);
-        }, 2000);
+        }, 1300);
       }
-    }, 2500);
+    }, 1900);
   };
 
   const renderStars = (rating) => {
@@ -221,12 +223,12 @@ const ShoppingAssistant = ({ onClose, initialQuery }) => {
                 </button>
               </div>
             )}
-            {message.continuers && (
+            {message.continuers && index > lastContinuerIndex && (
               <div className="mt-2 space-y-2">
                 {message.continuers.map((continuer, idx) => (
                   <button 
                     key={idx}
-                    onClick={() => handleContinuerClick(continuer)}
+                    onClick={() => handleContinuerClick(continuer, index)}
                     className="flex items-center text-sm text-indigo-600 hover:text-indigo-800 transition"
                   >
                     <ChevronRight size={16} className="mr-1" />
