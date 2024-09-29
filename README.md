@@ -1,5 +1,10 @@
-Planned System Architecture:
+Too much products available, challenging navigations, lots of undetailed description to read, not being able to ask about the product and quickly get an answer with recommendation just like we would when shopping irl, may cause fatigue, frustration, churn of customers and ultimately lead to profit loss for ecommerce stores. Biggest ecommerce stores like Amazon are already trying to address this problem with their internally developed tools like Amazon Rufus. Our goal is to democratize the access to such tools to allow for great, seamless experience when shopping online.
 
+
+
+
+
+Planned System Architecture:
 
 graph TD
     A[User] -->|Provides URL| B[Web Scraper]
