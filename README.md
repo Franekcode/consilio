@@ -6,6 +6,7 @@ Too much products available, challenging navigations, lots of undetailed descrip
 
 Planned System Architecture:
 
+```mermaid
 graph TD
     A[User] -->|Provides URL| B[Web Scraper]
     B -->|Extracts Data| C[Product Catalog Database]
